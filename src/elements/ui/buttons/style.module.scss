@@ -1,0 +1,27 @@
+@use "src/styles/variables";
+
+.button {
+  color: variables.$main-color__dark;
+  background-color: variables.$main-color;
+  box-shadow: variables.$second-box-shadow;
+
+  border: 1px solid variables.$main-color__dark;
+  outline: none;
+  border-radius: 0.25rem;
+
+  padding: 0.25rem;
+  max-width: 2rem;
+  max-height: 2rem;
+
+  transition: all 0.15s;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(1);
+    box-shadow: unset;
+  }
+}

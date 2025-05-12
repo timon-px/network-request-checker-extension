@@ -1,0 +1,91 @@
+@use "src/styles/variables";
+
+.request_item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+
+  box-shadow: variables.$main-box-shadow;
+  border: 1px solid variables.$main-color__dark;
+  background-color: variables.$main-color;
+  border-radius: 0.5rem;
+
+  transition: background-color 0.15s ease-out;
+
+  &:hover {
+    cursor: pointer;
+    background-color: variables.$main-color__light;
+  }
+
+  &_content {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  &_info__wrapper {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    color: variables.$text-color;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  &_info:first-child &__title {
+    padding-right: 0.75rem;
+    border-right: 1px solid variables.$main-color__dark;
+  }
+
+  &__about {
+    color: variables.$text-color;
+    font-weight: 400;
+    font-size: 1rem;
+    font-style: italic;
+  }
+
+  &_amount {
+    margin-left: auto;
+  }
+
+  &_amount &__about {
+    font-weight: 600;
+    font-size: 1rem;
+    font-style: normal;
+  }
+
+  &_main {
+    color: variables.$text-color;
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 2rem;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    max-height: 2rem;
+    transition: max-height 0.25s ease-out, white-space 0.25s ease-out;
+  }
+
+  &:hover &_main {
+    white-space: normal;
+    word-break: break-all;
+    max-height: 12rem;
+  }
+
+  &_action {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem 0.75rem;
+    opacity: 0;
+    transform: translateY(-1rem);
+    transition: opacity 0.1s, transform 0.25s;
+  }
+
+  &:hover &_action {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
