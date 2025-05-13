@@ -1,3 +1,4 @@
+import Skeleton from "@elements/Skeleton"
 import WhitelistItem from "@elements/WhitelistItem"
 import { useCallback } from "react"
 
@@ -6,7 +7,7 @@ import useWhitelist from "~hooks/useWhitelist"
 import style from "./style.module.scss"
 
 const WhiteList = () => {
-  const { whitelist, removeWhitelist } = useWhitelist()
+  const { pending, whitelist, removeWhitelist } = useWhitelist()
 
   const onRemoveHandle = useCallback(
     async (requestKey: string) => {
@@ -14,6 +15,14 @@ const WhiteList = () => {
     },
     [removeWhitelist]
   )
+
+  if (pending && whitelist.length < 1) {
+    return (
+      <ul className={style.whitelist}>
+        <Skeleton />
+      </ul>
+    )
+  }
 
   if (!whitelist || whitelist.length < 1) {
     return (

@@ -1,4 +1,5 @@
 import RequestItem from "@elements/RequestItem"
+import Skeleton from "@elements/Skeleton"
 import { useCallback } from "react"
 
 import useRequestList from "~hooks/useRequestList"
@@ -8,7 +9,7 @@ import type { IRequest } from "~types/IRequest"
 import style from "./style.module.scss"
 
 const RequestList = () => {
-  const { groupedRequests } = useRequestList()
+  const { pending, groupedRequests } = useRequestList()
   const { putWhitelist } = useWhitelist(true)
 
   const onWhitelistHandle = useCallback(
@@ -17,6 +18,15 @@ const RequestList = () => {
     },
     [putWhitelist]
   )
+
+  if (pending && groupedRequests.length < 1) {
+    console.log(groupedRequests)
+    return (
+      <ul className={style.request_list}>
+        <Skeleton />
+      </ul>
+    )
+  }
 
   if (!groupedRequests || groupedRequests.length < 1) {
     return (

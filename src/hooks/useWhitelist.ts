@@ -6,12 +6,14 @@ import type { IRequest, IWhiteRequest } from "~types/IRequest"
 import type { IWhiteListRequest } from "~types/IWhiteList"
 
 interface IWhitelistHook {
+  pending: boolean
   whitelist: IWhiteRequest[]
   putWhitelist: (request: IRequest) => Promise<void>
   removeWhitelist: (requestKey: string) => Promise<void>
 }
 
 const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
+  const [pending, setPending] = useState<boolean>(false)
   const [whitelist, setWhitelist] = useState<IWhiteRequest[]>([])
 
   // Fetch initial whitelist
@@ -48,24 +50,29 @@ const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
     request,
     requestKey
   }: IWhiteListRequest) => {
-    const { whitelist: response } = await sendToBackground({
-      name: "whitelist",
-      body: {
-        type,
-        request,
-        requestKey
-      }
-    })
+    setPending(true)
 
-    const updatedWhitelist: Map<string, IWhiteRequest> = new Map(
-      Object.entries(response)
-    )
+    try {
+      const { whitelist: response } = await sendToBackground({
+        name: "whitelist",
+        body: {
+          type,
+          request,
+          requestKey
+        }
+      })
 
-    setWhitelist([...updatedWhitelist.values()])
+      const updatedWhitelist: Map<string, IWhiteRequest> = new Map(
+        Object.entries(response)
+      )
+
+      setWhitelist([...updatedWhitelist.values()])
+    } finally {
+      setPending(false)
+    }
   }
 
-
-  return { whitelist, putWhitelist, removeWhitelist }
+  return { pending, whitelist, putWhitelist, removeWhitelist }
 }
 
 export default useWhitelist

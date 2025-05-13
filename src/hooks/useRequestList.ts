@@ -10,6 +10,7 @@ import type {
 import { groupRequests } from "~utils/requestUtils"
 
 interface IRequestListHook {
+  pending: boolean
   requests: IRequest[]
   groupedRequests: IGroupedRequest[]
 }
@@ -20,6 +21,7 @@ const useRequestList = (): IRequestListHook => {
     IRequest[]
   >("requests")
 
+  const [pending, setPending] = useState<boolean>(true)
   const [requests, setRequests] = useState<IRequest[]>([])
   const [groupedRequests, setGroupedRequests] = useState<IGroupedRequest[]>([])
 
@@ -32,10 +34,11 @@ const useRequestList = (): IRequestListHook => {
 
       setRequests(requestList)
       setGroupedRequests(groupedRequestList)
+      setPending(false)
     })
   }, [])
 
-  return { requests, groupedRequests }
+  return { pending, requests, groupedRequests }
 }
 
 export default useRequestList
