@@ -3,6 +3,7 @@ import CheckIcon from "@elements/ui/Icons/CheckIcon"
 import CopyCheckIcon from "@elements/ui/Icons/CopyCheckIcon"
 import CopyIcon from "@elements/ui/Icons/CopyIcon"
 import ErrorCircleIcon from "@elements/ui/Icons/ErrorCircleIcon"
+import { motion } from "framer-motion"
 import { memo, useCallback, useState, type FC } from "react"
 
 import type { IGroupedRequest, IRequest } from "~/types/IRequest"
@@ -17,6 +18,12 @@ const StatusIcon = {
 }
 
 type StatusType = keyof typeof StatusIcon
+
+const animVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 }
+}
 
 interface Props extends IGroupedRequest {
   handleWhitelist: (request: IRequest) => void
@@ -60,7 +67,14 @@ const RequestItemComponent: FC<Props> = ({
   }
 
   return (
-    <li className={style.request_item}>
+    <motion.li
+      key={url}
+      variants={animVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.25 }}
+      className={style.request_item}>
       <div className={style.request_item_content}>
         <div className={style.request_item_info__wrapper}>
           <div className={style.request_item_info}>
@@ -94,7 +108,7 @@ const RequestItemComponent: FC<Props> = ({
           <CopyStatusIcon />
         </ActionButton>
       </div>
-    </li>
+    </motion.li>
   )
 }
 

@@ -1,5 +1,6 @@
 import Skeleton from "@elements/Skeleton"
 import WhitelistItem from "@elements/WhitelistItem"
+import { AnimatePresence } from "framer-motion"
 import { useCallback } from "react"
 
 import useWhitelist from "~hooks/useWhitelist"
@@ -34,14 +35,16 @@ const WhiteList = () => {
 
   return (
     <ul className={style.whitelist}>
-      {whitelist.map((value) => (
-        <WhitelistItem
-          key={value.key}
-          requestKey={value.key}
-          handleRemove={onRemoveHandle}
-          {...value}
-        />
-      ))}
+      <AnimatePresence>
+        {whitelist.map((value) => (
+          <WhitelistItem
+            key={value.key}
+            requestKey={value.key}
+            handleRemove={onRemoveHandle}
+            {...value}
+          />
+        ))}
+      </AnimatePresence>
     </ul>
   )
 }
