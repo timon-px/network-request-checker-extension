@@ -38,12 +38,7 @@ class RequestManager {
   ): IRequest[] {
     return requests.map(
       (request): IRequest => ({
-        key: request.key,
-        url: request.url,
-        type: request.type,
-        method: request.method,
-        requestId: request.requestId,
-        timeStamp: request.timeStamp,
+        ...request,
         inWhitelist: whitelist.has(request.key)
       })
     )

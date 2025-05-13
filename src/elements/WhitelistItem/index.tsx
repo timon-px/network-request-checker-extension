@@ -55,6 +55,7 @@ const WhitelistItemComponent: FC<Props> = ({
 const WhitelistItem = memo(
   WhitelistItemComponent,
   (prevProps, nextProps) =>
+    prevProps.requestKey === nextProps.requestKey &&
     prevProps.method === nextProps.method &&
     prevProps.type === nextProps.type &&
     prevProps.url === nextProps.url

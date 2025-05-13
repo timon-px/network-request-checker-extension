@@ -1,10 +1,22 @@
 import ActionButton from "@elements/ui/buttons/ActionButton"
 import CheckIcon from "@elements/ui/Icons/CheckIcon"
-import { memo, useCallback, type FC } from "react"
+import CopyCheckIcon from "@elements/ui/Icons/CopyCheckIcon"
+import CopyIcon from "@elements/ui/Icons/CopyIcon"
+import ErrorCircleIcon from "@elements/ui/Icons/ErrorCircleIcon"
+import { memo, useCallback, useState, type FC } from "react"
 
 import type { IGroupedRequest, IRequest } from "~/types/IRequest"
+import { useCopyToClipboard } from "~hooks/useCopyToClipboard"
 
 import style from "./style.module.scss"
+
+const StatusIcon = {
+  wait: <CopyIcon />,
+  done: <CopyCheckIcon />,
+  error: <ErrorCircleIcon />
+}
+
+type StatusType = keyof typeof StatusIcon
 
 interface Props extends IGroupedRequest {
   handleWhitelist: (request: IRequest) => void
@@ -18,6 +30,9 @@ const RequestItemComponent: FC<Props> = ({
   requests,
   handleWhitelist
 }) => {
+  const [copied, setCopied] = useState<StatusType>("wait")
+  const [_, copy] = useCopyToClipboard()
+
   const handleClick = useCallback(() => {
     const request = requests.find(
       (req) => req.url && req.type && req.method && !req.inWhitelist
@@ -25,6 +40,24 @@ const RequestItemComponent: FC<Props> = ({
 
     if (request) handleWhitelist(request)
   }, [requests, handleWhitelist])
+
+  const handleClickCopy = useCallback(async () => {
+    if (copied !== "wait") return
+
+    try {
+      const result = await copy(url)
+      if (result) setCopied("done")
+      else setCopied("error")
+    } catch (e) {
+      setCopied("error")
+    } finally {
+      setTimeout(() => setCopied("wait"), 1500)
+    }
+  }, [url, copied, setCopied, copy])
+
+  const CopyStatusIcon = () => {
+    return StatusIcon[copied]
+  }
 
   return (
     <li className={style.request_item}>
@@ -56,6 +89,9 @@ const RequestItemComponent: FC<Props> = ({
       <div className={style.request_item_action}>
         <ActionButton onClick={handleClick}>
           <CheckIcon />
+        </ActionButton>
+        <ActionButton onClick={handleClickCopy}>
+          <CopyStatusIcon />
         </ActionButton>
       </div>
     </li>

@@ -14,11 +14,34 @@
   border: 1px solid variables.$main-color__dark;
 
   box-shadow: rgba(50, 50, 94, 0.25) 0 2px 4px -2px inset, rgba(0, 0, 0, 0.25) 0px 3px 9px -6px inset;
+
+  --tabUnderlineLeft: 2px;
+  --tabUnderlineWidth: 82px;
+
+  position: relative;
+
+  &:after {
+    content: "";
+    z-index: 2;
+    position: absolute;
+
+    height: calc(100% - 0.25rem);
+    background-color: variables.$text-color;
+    border-radius: 1.1rem;
+    margin: auto;
+
+    width: var(--tabUnderlineWidth);
+    left: var(--tabUnderlineLeft);
+
+    top: 0;
+    bottom: 0;
+    transition: width 0.25s, left 0.15s;
+  }
 }
 
 .tab_button {
   color: variables.$text-color;
-  background-color: variables.$background-color;
+  background-color: transparent;
   box-shadow: variables.$second-box-shadow;
 
   font-size: 0.85rem;
@@ -27,6 +50,9 @@
   padding: 0.75rem 1rem;
   border: none;
   border-radius: 1.1rem;
+
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
 
   z-index: 1;
   position: relative;
@@ -43,7 +69,6 @@
 
   &.active {
     color: variables.$background-color;
-    background-color: variables.$text-color;
     z-index: 3;
   }
 }
