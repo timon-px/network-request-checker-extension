@@ -37,7 +37,7 @@ const RequestItemComponent: FC<Props> = ({
   requests,
   handleWhitelist
 }) => {
-  const [copied, setCopied] = useState<StatusType>("wait")
+  const [copiedStatus, setCopiedStatus] = useState<StatusType>("wait")
   const [_, copy] = useCopyToClipboard()
 
   const handleClick = useCallback(() => {
@@ -49,21 +49,20 @@ const RequestItemComponent: FC<Props> = ({
   }, [requests, handleWhitelist])
 
   const handleClickCopy = useCallback(async () => {
-    if (copied !== "wait") return
+    if (copiedStatus !== "wait") return
 
     try {
       const result = await copy(url)
-      if (result) setCopied("done")
-      else setCopied("error")
-    } catch (e) {
-      setCopied("error")
+      setCopiedStatus(result ? "done" : "error")
+    } catch (_) {
+      setCopiedStatus("error")
     } finally {
-      setTimeout(() => setCopied("wait"), 1500)
+      setTimeout(() => setCopiedStatus("wait"), 1500)
     }
-  }, [url, copied, setCopied, copy])
+  }, [url, copiedStatus, setCopiedStatus, copy])
 
   const CopyStatusIcon = () => {
-    return StatusIcon[copied]
+    return StatusIcon[copiedStatus]
   }
 
   return (

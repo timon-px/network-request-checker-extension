@@ -42,17 +42,11 @@ const Tabs: React.FC<ITabsProps> & { Tab: typeof Tab } = ({
 
     const setTabPosition = () => {
       const currentTab = tabButtonsRef.current[activeTab] as HTMLElement
-      const tabUnderlineLeft = currentTab?.offsetLeft ?? 0
-      const tabUnderlineWidth = currentTab?.clientWidth ?? 0
+      const left = `${currentTab?.offsetLeft}px` ?? 0
+      const width = `${currentTab?.clientWidth}px` ?? 0
 
-      tabListRef.current.attributeStyleMap.set(
-        "--tabUnderlineLeft",
-        tabUnderlineLeft + "px"
-      )
-      tabListRef.current.attributeStyleMap.set(
-        "--tabUnderlineWidth",
-        tabUnderlineWidth + "px"
-      )
+      tabListRef.current.attributeStyleMap.set("--tabUnderlineLeft", left)
+      tabListRef.current.attributeStyleMap.set("--tabUnderlineWidth", width)
     }
 
     setTabPosition()
@@ -61,6 +55,9 @@ const Tabs: React.FC<ITabsProps> & { Tab: typeof Tab } = ({
   return (
     <div className={style.tabs_container}>
       <nav ref={tabListRef} className={style.tab_list} role="tablist">
+        <span className={style.tab_list__selected}>
+          <span className={style.tab_list__selected_bg}></span>
+        </span>
         {Array.from(tabsMap.entries()).map(([id, { label }]) => (
           <button
             key={id}
