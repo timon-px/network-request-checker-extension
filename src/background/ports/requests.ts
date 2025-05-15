@@ -6,10 +6,17 @@ import type { IRequest, IRequestPortRequest } from "~types/IRequest"
 const handler: PlasmoMessaging.PortHandler<
   IRequestPortRequest,
   IRequest[]
-> = async (request, response) => {
-  if (request.body.type === "initSend") {
-    await requestManager.initPortSend()
-  } else response.send(request.body.requests)
+> = async (req, res) => {
+  const { type, requests } = req.body
+
+  switch (type) {
+    case "initSend":
+      await requestManager.initPortSend()
+      break
+
+    default:
+      return res.send(requests)
+  }
 }
 
 export default handler

@@ -45,8 +45,8 @@ const RequestItemComponent: FC<Props> = ({
     if (copiedStatus !== "wait") return
 
     try {
-      const result = await copy(url)
-      setCopiedStatus(result ? "done" : "error")
+      await copy(url)
+      setCopiedStatus("done")
     } catch (_) {
       setCopiedStatus("error")
     } finally {
@@ -54,9 +54,10 @@ const RequestItemComponent: FC<Props> = ({
     }
   }, [url, copiedStatus, setCopiedStatus, copy])
 
-  const CopyStatusIcon = () => {
-    return StatusIcon[copiedStatus]
-  }
+  const CopyStatusIcon = useCallback(
+    () => StatusIcon[copiedStatus],
+    [copiedStatus]
+  )
 
   return (
     <li className={style.request_item}>
@@ -97,13 +98,12 @@ const RequestItemComponent: FC<Props> = ({
   )
 }
 
-const RequestItem = memo(
-  RequestItemComponent,
-  (prevProps, nextProps) =>
-    prevProps.method === nextProps.method &&
-    prevProps.type === nextProps.type &&
-    prevProps.url === nextProps.url &&
-    prevProps.count === nextProps.count
-)
+const areEqual = (prev: Props, next: Props) =>
+  prev.method === next.method &&
+  prev.type === next.type &&
+  prev.url === next.url &&
+  prev.count === next.count
+
+const RequestItem = memo(RequestItemComponent, areEqual)
 
 export default RequestItem

@@ -3,7 +3,9 @@ import React, { type ReactElement, type ReactNode } from "react"
 
 import type { ITab } from "~types/ITabs"
 
-// Type guard for valid tab elements
+const TAB_ID_PREFIX = "tab"
+
+// ✅ Type guard for Tabs.Tab or Tabs.Divider
 const isTabElement = (child: ReactNode): child is ReactElement<ITabProps> => {
   return (
     React.isValidElement(child) &&
@@ -12,11 +14,22 @@ const isTabElement = (child: ReactNode): child is ReactElement<ITabProps> => {
 }
 
 /**
- * Validates and processes tab children into a Map of tabs and a Set of tab IDs
- * followed by dividers. Ensures unique IDs and valid tab components.
- * @param children - React children containing Tabs.Tab and Tabs.Divider components
- * @returns A tuple [Map<string, ITab>, Set<string>] with tab data and divider positions
- * @throws Error if invalid children or duplicate labels are detected
+ * Filters only valid Tabs.Tab or Tabs.Divider components
+ */
+function filterTabs(children: ReactNode): ReactElement<ITabProps>[] {
+  return React.Children.toArray(children).filter(isTabElement)
+}
+
+/**
+ * Builds a unique tab ID string
+ */
+function buildTabId(index: number, prefix = TAB_ID_PREFIX): string {
+  return `${prefix}${index}`
+}
+
+/**
+ * Validates tab children and returns structured tab data
+ * @throws Error on invalid props
  */
 export function validateTabs(
   children: ReactNode
@@ -25,18 +38,23 @@ export function validateTabs(
 
   const mapTabs = new Map<string, ITab>()
   const setDividerAfter = new Set<string>()
+
   let currentTabIndex = 0
+  let lastTabId: string | null = null
 
   for (const tab of filteredTabs) {
     if (tab.type === Tabs.Divider) {
-      if (currentTabIndex === 0) continue
-      setDividerAfter.add(buildTabId(currentTabIndex - 1))
-    } else if (tab.type === Tabs.Tab) {
+      if (lastTabId) setDividerAfter.add(lastTabId)
+      continue
+    }
+
+    if (tab.type === Tabs.Tab) {
       const { label, children: content, disabled } = tab.props
 
-      // Validate required props
-      if (!label) {
-        throw new Error(`Tab at index ${currentTabIndex} is missing a label`)
+      if (!label || typeof label !== "string") {
+        throw new Error(
+          `Tab at index ${currentTabIndex} is missing a valid label.`
+        )
       }
 
       const tabId = buildTabId(currentTabIndex++)
@@ -44,29 +62,12 @@ export function validateTabs(
         id: tabId,
         label,
         content,
-        disabled: disabled ?? false
+        disabled: !!disabled
       })
+
+      lastTabId = tabId
     }
   }
 
   return [mapTabs, setDividerAfter]
-}
-
-/**
- * Filters React children to include only valid tab or divider components.
- * @param children - React children to filter
- * @returns Array of valid tab or divider elements
- */
-function filterTabs(children: ReactNode): ReactElement<ITabProps>[] {
-  return React.Children.toArray(children).filter(isTabElement)
-}
-
-/**
- * Generates a unique tab ID based on index.
- * @param index - Tab index
- * @returns Unique tab ID (e.g., "tab0")
- */
-function buildTabId(index: number): string {
-  const TAB_ID_PREFIX = "tab"
-  return `${TAB_ID_PREFIX}${index}`
 }

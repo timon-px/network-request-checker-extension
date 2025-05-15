@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { usePort } from "@plasmohq/messaging/hook"
 
@@ -26,21 +26,37 @@ const useRequestList = (): IRequestListHook => {
   const [requests, setRequests] = useState<IRequest[]>([])
   const [groupedRequests, setGroupedRequests] = useState<IGroupedRequest[]>([])
 
+  const isMounted = useRef(true)
+  const isFirstRun = useRef(true)
+
   useEffect(() => {
-    if (requests.length < 1) send({ type: "initSend" })
+    isMounted.current = true
 
-    listenRequests(async (requestList) => {
-      const startTime = Date.now()
+    if (isFirstRun.current) {
+      send({ type: "initSend" })
+    }
 
-      if (!requestList) return
-      const groupedRequestList = groupRequests(requestList)
+    const { disconnect } = listenRequests(async (requestList) => {
+      if (!isMounted.current || !requestList || !Array.isArray(requestList))
+        return
 
-      await waitMinDelay(startTime)
+      const start = Date.now()
+      const grouped = groupRequests(requestList)
+
+      if (isFirstRun.current) {
+        await waitMinDelay(start)
+        isFirstRun.current = false
+      }
 
       setRequests(requestList)
-      setGroupedRequests(groupedRequestList)
+      setGroupedRequests(grouped)
       setPending(false)
     })
+
+    return () => {
+      isMounted.current = false
+      disconnect()
+    }
   }, [])
 
   return { pending, requests, groupedRequests }
