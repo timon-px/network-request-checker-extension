@@ -4,68 +4,61 @@ import { sendToBackground } from "@plasmohq/messaging"
 
 import type { IRequest, IWhiteRequest } from "~types/IRequest"
 import type { IWhiteListRequest } from "~types/IWhiteList"
+import { waitMinDelay } from "~utils/sleep"
 
 interface IWhitelistHook {
+  pending: boolean
   whitelist: IWhiteRequest[]
   putWhitelist: (request: IRequest) => Promise<void>
   removeWhitelist: (requestKey: string) => Promise<void>
 }
 
-const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
+export const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
+  const [pending, setPending] = useState(true)
   const [whitelist, setWhitelist] = useState<IWhiteRequest[]>([])
 
-  // Fetch initial whitelist
+  const processWhitelist = useCallback(
+    async ({ type, request, requestKey }: IWhiteListRequest) => {
+      const startTime = Date.now()
+      setPending(true)
+
+      try {
+        const res = await sendToBackground({
+          name: "whitelist",
+          body: { type, request, requestKey }
+        })
+
+        const whitelistMap = new Map<string, IWhiteRequest>(
+          Object.entries(res?.whitelist ?? {})
+        )
+
+        if (type === "get") await waitMinDelay(startTime)
+
+        setWhitelist(Array.from(whitelistMap.values()))
+      } finally {
+        setPending(false)
+      }
+    },
+    []
+  )
+
+  const putWhitelist = useCallback(
+    (request: IRequest) => processWhitelist({ type: "put", request }),
+    [processWhitelist]
+  )
+
+  const removeWhitelist = useCallback(
+    (requestKey: string) => processWhitelist({ type: "delete", requestKey }),
+    [processWhitelist]
+  )
+
+  // Initial fetch
   useEffect(() => {
     if (skipFetch) return
+    processWhitelist({ type: "get" })
+  }, [skipFetch, processWhitelist])
 
-    const fetchWhitelist = async () => {
-      await processWhitelist({
-        type: "get"
-      })
-    }
-
-    fetchWhitelist()
-  }, [])
-
-  // Add URL to whitelist
-  const putWhitelist = useCallback((request: IRequest) => {
-    return processWhitelist({
-      type: "put",
-      request: request
-    })
-  }, [])
-
-  // Remove URL from whitelist
-  const removeWhitelist = useCallback((requestKey: string) => {
-    return processWhitelist({
-      type: "delete",
-      requestKey: requestKey
-    })
-  }, [])
-
-  const processWhitelist = async ({
-    type,
-    request,
-    requestKey
-  }: IWhiteListRequest) => {
-    const { whitelist: response } = await sendToBackground({
-      name: "whitelist",
-      body: {
-        type,
-        request,
-        requestKey
-      }
-    })
-
-    const updatedWhitelist: Map<string, IWhiteRequest> = new Map(
-      Object.entries(response)
-    )
-
-    setWhitelist([...updatedWhitelist.values()])
-  }
-
-
-  return { whitelist, putWhitelist, removeWhitelist }
+  return { pending, whitelist, putWhitelist, removeWhitelist }
 }
 
 export default useWhitelist

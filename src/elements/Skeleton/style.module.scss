@@ -1,0 +1,76 @@
+@use "src/styles/variables";
+
+.skeleton {
+  display: grid;
+  grid-template-columns: 1fr 3.5rem;
+
+  height: 6rem;
+
+  box-shadow: variables.$main-box-shadow;
+  border: 1px solid variables.$main-color__dark;
+  background-color: variables.$main-color;
+  border-radius: 0.5rem;
+
+  transition: background-color 0.15s ease-out;
+
+  &:hover {
+    cursor: pointer;
+    background-color: variables.$main-color__light;
+  }
+
+  &_content {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+
+    -webkit-user-select: none; /* Safari */
+    user-select: none;
+  }
+
+  &_main {
+    max-height: 2rem;
+  }
+
+  &_box {
+    display: block;
+    height: 1em;
+    width: 100%;
+
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 0.25em;
+    background-color: #bbb6ae;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+                      90deg,
+                      rgba(#e0d5c5, 0) 0,
+                      rgba(#e0d5c5, 0.2) 20%,
+                      rgba(#e0d5c5, 0.5) 60%,
+                      rgba(#e0d5c5, 0)
+      );
+      animation: shimmer 4s infinite;
+    }
+
+    @keyframes shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+  }
+
+  &_info &_box {
+    height: 1.25rem;
+    max-width: 16rem;
+  }
+
+  &_main &_box {
+    height: 1.75rem;
+  }
+}

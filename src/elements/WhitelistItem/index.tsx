@@ -52,12 +52,12 @@ const WhitelistItemComponent: FC<Props> = ({
   )
 }
 
-const WhitelistItem = memo(
-  WhitelistItemComponent,
-  (prevProps, nextProps) =>
-    prevProps.method === nextProps.method &&
-    prevProps.type === nextProps.type &&
-    prevProps.url === nextProps.url
-)
+const areEqual = (prev: Props, next: Props) =>
+  prev.requestKey === next.requestKey &&
+  prev.method === next.method &&
+  prev.type === next.type &&
+  prev.url === next.url
+
+const WhitelistItem = memo(WhitelistItemComponent, areEqual)
 
 export default WhitelistItem

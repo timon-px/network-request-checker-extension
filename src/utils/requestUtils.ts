@@ -1,34 +1,38 @@
 import type { IGroupedRequest, IRequest } from "~types/IRequest"
 
 export const getRequestKey = (request: Omit<IRequest, "key">) => {
-  return `${request.url}|${request.method}|${request.type}`
+  const { url = "", method = "", type = "" } = request
+  return `${url}|${method}|${type}`
 }
 
 export const groupRequests = (requests: IRequest[]): IGroupedRequest[] => {
-  const groupedMap = requests.reduce((map, request) => {
-    if (!request || request.inWhitelist) return map
+  const groupedMap = new Map<string, IGroupedRequest>()
 
-    if (!map.has(request.key)) {
-      map.set(request.key, {
-        url: request.url,
-        method: request.method,
-        type: request.type,
-        timeStamp: request.timeStamp,
+  for (const request of requests) {
+    if (!request || request.inWhitelist || !request.key) continue
+
+    const { key, url, method, type, timeStamp } = request
+
+    if (!groupedMap.has(key)) {
+      groupedMap.set(key, {
+        url,
+        method,
+        type,
+        timeStamp,
         count: 0,
         requests: []
       })
     }
 
-    const group = map.get(request.key)
+    const group = groupedMap.get(key)!
+
     group.requests.push(request)
+    group.count += 1
 
-    group.count = group.requests.length
     group.timeStamp = Math.max(group.timeStamp, request.timeStamp)
-
-    return map
-  }, new Map<string, IGroupedRequest>())
+  }
 
   return Array.from(groupedMap.values()).sort(
-    (left, right) => left.timeStamp - right.timeStamp
+    (a, b) => a.timeStamp - b.timeStamp
   )
 }

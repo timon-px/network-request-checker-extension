@@ -13,6 +13,7 @@
   padding: 0 12px 0 0;
   list-style: none;
   overflow-y: scroll;
+  overflow-x: hidden;
   box-shadow: variables.$main-box-shadow;
 
   &::-webkit-scrollbar {

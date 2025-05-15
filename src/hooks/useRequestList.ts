@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { usePort } from "@plasmohq/messaging/hook"
 
@@ -8,8 +8,10 @@ import type {
   IRequestPortRequest
 } from "~types/IRequest"
 import { groupRequests } from "~utils/requestUtils"
+import { waitMinDelay } from "~utils/sleep"
 
 interface IRequestListHook {
+  pending: boolean
   requests: IRequest[]
   groupedRequests: IGroupedRequest[]
 }
@@ -20,22 +22,44 @@ const useRequestList = (): IRequestListHook => {
     IRequest[]
   >("requests")
 
+  const [pending, setPending] = useState<boolean>(true)
   const [requests, setRequests] = useState<IRequest[]>([])
   const [groupedRequests, setGroupedRequests] = useState<IGroupedRequest[]>([])
 
-  useEffect(() => {
-    if (requests.length < 1) send({ type: "initSend" })
+  const isMounted = useRef(true)
+  const isFirstRun = useRef(true)
 
-    listenRequests(async (requestList) => {
-      if (!requestList) return
-      const groupedRequestList = groupRequests(requestList)
+  useEffect(() => {
+    isMounted.current = true
+
+    if (isFirstRun.current) {
+      send({ type: "initSend" })
+    }
+
+    const { disconnect } = listenRequests(async (requestList) => {
+      if (!isMounted.current || !requestList || !Array.isArray(requestList))
+        return
+
+      const start = Date.now()
+      const grouped = groupRequests(requestList)
+
+      if (isFirstRun.current) {
+        await waitMinDelay(start)
+        isFirstRun.current = false
+      }
 
       setRequests(requestList)
-      setGroupedRequests(groupedRequestList)
+      setGroupedRequests(grouped)
+      setPending(false)
     })
+
+    return () => {
+      isMounted.current = false
+      disconnect()
+    }
   }, [])
 
-  return { requests, groupedRequests }
+  return { pending, requests, groupedRequests }
 }
 
 export default useRequestList

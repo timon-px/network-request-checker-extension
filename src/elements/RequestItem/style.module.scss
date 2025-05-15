@@ -20,6 +20,9 @@
     display: grid;
     gap: 0.5rem;
     padding: 1rem;
+
+    -webkit-user-select: none; /* Safari */
+    user-select: none;
   }
 
   &_info__wrapper {
@@ -69,7 +72,7 @@
     transition: max-height 0.25s ease-out, white-space 0.25s ease-out;
   }
 
-  &:hover &_main {
+  &_content:active &_main {
     white-space: normal;
     word-break: break-all;
     max-height: 12rem;
@@ -77,8 +80,9 @@
 
   &_action {
     display: grid;
+    align-content: start;
     gap: 0.5rem;
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 0.75rem;
     opacity: 0;
     transform: translateY(-1rem);
     transition: opacity 0.1s, transform 0.25s;
@@ -87,5 +91,10 @@
   &:hover &_action {
     transform: translateY(0);
     opacity: 1;
+  }
+
+  &_content:active + &_action {
+    opacity: 0;
+    transform: translateY(-1rem);
   }
 }
