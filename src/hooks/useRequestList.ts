@@ -8,6 +8,7 @@ import type {
   IRequestPortRequest
 } from "~types/IRequest"
 import { groupRequests } from "~utils/requestUtils"
+import { waitMinDelay } from "~utils/sleep"
 
 interface IRequestListHook {
   pending: boolean
@@ -29,8 +30,12 @@ const useRequestList = (): IRequestListHook => {
     if (requests.length < 1) send({ type: "initSend" })
 
     listenRequests(async (requestList) => {
+      const startTime = Date.now()
+
       if (!requestList) return
       const groupedRequestList = groupRequests(requestList)
+
+      await waitMinDelay(startTime)
 
       setRequests(requestList)
       setGroupedRequests(groupedRequestList)

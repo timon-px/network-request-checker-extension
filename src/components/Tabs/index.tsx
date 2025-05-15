@@ -14,6 +14,7 @@ import style from "./style.module.scss"
 export interface ITabProps {
   label: string
   children: ReactNode
+  disabled?: boolean
 }
 
 interface ITabsProps {
@@ -24,18 +25,21 @@ interface ITabsProps {
 // Tab Component
 const Tab: React.FC<ITabProps> = ({ children }) => children
 
+// Tab divider
+const Divider: React.FC = () => null
+
 // Tabs Component
-const Tabs: React.FC<ITabsProps> & { Tab: typeof Tab } = ({
-  defaultTab = "tab0",
-  children
-}) => {
+const Tabs: React.FC<ITabsProps> & {
+  Tab: typeof Tab
+  Divider: typeof Divider
+} = ({ defaultTab = "tab0", children }) => {
   const tabButtonsRef = useRef<(HTMLElement | null)[]>([])
   const tabListRef = useRef<HTMLElement | null>(null)
-  const tabsMap = useMemo(() => validateTabs(children), [children])
+  const [tabs, dividers] = useMemo(() => validateTabs(children), [children])
 
   const [activeTab, setActiveTab] = useState<string>(defaultTab)
 
-  const ActiveTabContent = () => tabsMap.get(activeTab).content
+  const ActiveTabContent = () => tabs.get(activeTab).content
 
   useEffect(() => {
     if (!activeTab) return
@@ -45,12 +49,17 @@ const Tabs: React.FC<ITabsProps> & { Tab: typeof Tab } = ({
       const left = `${currentTab?.offsetLeft}px` ?? 0
       const width = `${currentTab?.clientWidth}px` ?? 0
 
-      tabListRef.current.attributeStyleMap.set("--tabUnderlineLeft", left)
-      tabListRef.current.attributeStyleMap.set("--tabUnderlineWidth", width)
+      tabListRef.current.attributeStyleMap.set("--tabSelectedLeft", left)
+      tabListRef.current.attributeStyleMap.set("--tabSelectedWidth", width)
     }
 
     setTabPosition()
   }, [activeTab])
+
+  const activeTabStyle = (index: string) =>
+    clsx(style.tab_button, {
+      [style.active]: activeTab === index
+    })
 
   return (
     <div className={style.tabs_container}>
@@ -58,18 +67,20 @@ const Tabs: React.FC<ITabsProps> & { Tab: typeof Tab } = ({
         <span className={style.tab_list__selected}>
           <span className={style.tab_list__selected_bg}></span>
         </span>
-        {Array.from(tabsMap.entries()).map(([id, { label }]) => (
-          <button
-            key={id}
-            ref={(el) => (tabButtonsRef.current[id] = el)}
-            type="button"
-            role="tab"
-            className={clsx(style.tab_button, {
-              [style.active]: activeTab === id
-            })}
-            onClick={() => setActiveTab(id)}>
-            {label}
-          </button>
+        {Array.from(tabs.values()).map(({ id, label, disabled }) => (
+          <React.Fragment key={id}>
+            <button
+              ref={(el) => (tabButtonsRef.current[id] = el)}
+              type="button"
+              role="tab"
+              className={activeTabStyle(id)}
+              onClick={() => setActiveTab(id)}
+              disabled={disabled}>
+              {label}
+            </button>
+
+            {dividers.has(id) && <span className={style.tab_list__divider} />}
+          </React.Fragment>
         ))}
       </nav>
 
@@ -81,4 +92,5 @@ const Tabs: React.FC<ITabsProps> & { Tab: typeof Tab } = ({
 }
 
 Tabs.Tab = Tab
+Tabs.Divider = Divider
 export default Tabs

@@ -15,6 +15,7 @@ function IndexPopup() {
           <Tabs.Tab label="Requsts">
             <RequestList />
           </Tabs.Tab>
+
           <Tabs.Tab label="Whitelist">
             <WhiteList />
           </Tabs.Tab>

@@ -20,7 +20,7 @@ const WhiteList = () => {
   if (pending && whitelist.length < 1) {
     return (
       <ul className={style.whitelist}>
-        <Skeleton />
+        <Skeleton amount={2} />
       </ul>
     )
   }

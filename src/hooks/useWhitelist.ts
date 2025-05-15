@@ -4,6 +4,7 @@ import { sendToBackground } from "@plasmohq/messaging"
 
 import type { IRequest, IWhiteRequest } from "~types/IRequest"
 import type { IWhiteListRequest } from "~types/IWhiteList"
+import { waitMinDelay } from "~utils/sleep"
 
 interface IWhitelistHook {
   pending: boolean
@@ -13,7 +14,7 @@ interface IWhitelistHook {
 }
 
 const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
-  const [pending, setPending] = useState<boolean>(false)
+  const [pending, setPending] = useState<boolean>(true)
   const [whitelist, setWhitelist] = useState<IWhiteRequest[]>([])
 
   // Fetch initial whitelist
@@ -50,6 +51,8 @@ const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
     request,
     requestKey
   }: IWhiteListRequest) => {
+    const startTime = Date.now()
+
     setPending(true)
 
     try {
@@ -65,6 +68,8 @@ const useWhitelist = (skipFetch?: boolean): IWhitelistHook => {
       const updatedWhitelist: Map<string, IWhiteRequest> = new Map(
         Object.entries(response)
       )
+
+      await waitMinDelay(startTime)
 
       setWhitelist([...updatedWhitelist.values()])
     } finally {

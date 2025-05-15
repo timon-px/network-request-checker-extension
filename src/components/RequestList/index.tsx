@@ -21,10 +21,9 @@ const RequestList = () => {
   )
 
   if (pending && groupedRequests.length < 1) {
-    console.log(groupedRequests)
     return (
       <ul className={style.request_list}>
-        <Skeleton />
+        <Skeleton amount={2} />
       </ul>
     )
   }

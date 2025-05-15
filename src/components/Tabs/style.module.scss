@@ -6,6 +6,7 @@
 
 .tab_list {
   display: inline-flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
 
@@ -15,8 +16,8 @@
 
   box-shadow: rgba(50, 50, 94, 0.25) 0 2px 4px -2px inset, rgba(0, 0, 0, 0.25) 0px 3px 9px -6px inset;
 
-  --tabUnderlineLeft: 2px;
-  --tabUnderlineWidth: 82px;
+  --tabSelectedLeft: 2px;
+  --tabSelectedWidth: 82px;
 
   position: relative;
 
@@ -27,8 +28,8 @@
     height: 100%;
     padding-block: 0.15rem;
 
-    width: var(--tabUnderlineWidth);
-    left: var(--tabUnderlineLeft);
+    width: var(--tabSelectedWidth);
+    left: var(--tabSelectedLeft);
 
     top: 0;
     bottom: 0;
@@ -43,6 +44,16 @@
       border-radius: 1.1rem;
       background-color: variables.$text-color;
     }
+  }
+
+  &__divider {
+    width: 1px;
+    height: 100%;
+
+    display: block;
+    padding-block: 0.75rem;
+
+    background-color: variables.$main-color__dark;
   }
 }
 
