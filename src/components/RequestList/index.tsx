@@ -1,6 +1,5 @@
 import RequestItem from "@elements/RequestItem"
 import Skeleton from "@elements/Skeleton"
-import { AnimatePresence } from "framer-motion"
 import { useCallback } from "react"
 
 import useRequestList from "~hooks/useRequestList"
@@ -38,15 +37,13 @@ const RequestList = () => {
 
   return (
     <ul className={style.request_list}>
-      <AnimatePresence>
-        {groupedRequests.map((value) => (
-          <RequestItem
-            key={value.url}
-            handleWhitelist={onWhitelistHandle}
-            {...value}
-          />
-        ))}
-      </AnimatePresence>
+      {groupedRequests.map((value) => (
+        <RequestItem
+          key={value.url}
+          handleWhitelist={onWhitelistHandle}
+          {...value}
+        />
+      ))}
     </ul>
   )
 }

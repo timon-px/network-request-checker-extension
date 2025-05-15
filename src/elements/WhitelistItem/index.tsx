@@ -1,17 +1,10 @@
 import ActionButton from "@elements/ui/buttons/ActionButton"
 import MinusCircleIcon from "@elements/ui/Icons/MinusCircleIcon"
-import { motion } from "framer-motion"
 import { memo, useCallback, type FC } from "react"
 
 import type { IWhiteRequest } from "~/types/IRequest"
 
 import style from "./style.module.scss"
-
-const animVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 }
-}
 
 interface Props extends Omit<IWhiteRequest, "key"> {
   requestKey: string
@@ -30,14 +23,7 @@ const WhitelistItemComponent: FC<Props> = ({
   }, [requestKey, handleRemove])
 
   return (
-    <motion.li
-      key={url}
-      variants={animVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={{ duration: 0.25 }}
-      className={style.whitelist_item}>
+    <li className={style.whitelist_item}>
       <div className={style.whitelist_item_content}>
         <div className={style.whitelist_item_info__wrapper}>
           <div className={style.whitelist_item_info}>
@@ -62,7 +48,7 @@ const WhitelistItemComponent: FC<Props> = ({
           <MinusCircleIcon />
         </ActionButton>
       </div>
-    </motion.li>
+    </li>
   )
 }
 
